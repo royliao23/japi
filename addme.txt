@@ -1,0 +1,12 @@
+commandline:
+
+./mvnw spring-boot:run
+ ./mvnw.cmd spring-boot:run  
+./mvnw clean spring-boot:run
+./mvnw clean package 
+./mvnw clean compile    
+./mvnw.cmd clean install   
+
+javac App.java    
+git branch -M main
+git remote add origin https://github.com/royliao23/japi.git    
