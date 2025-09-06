@@ -1,81 +1,64 @@
 package com.example.controller;
 
-import java.io.Console;
-import java.time.LocalDateTime;
-import java.util.Map;
-
-import com.example.model.AuthUser;
-import com.example.repository.AuthUserRepository;
-import com.example.service.CustomUserDetailsService;
-
-import org.springframework.http.ResponseEntity;
+import com.example.util.JwtUtil;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
-
-import jakarta.validation.Valid;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 public class AuthController {
 
-    private final AuthUserRepository authUserRepository;
-    private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
+    private final UserDetailsService userDetailsService;
 
-    public AuthController(
-            AuthUserRepository authUserRepository,
-            PasswordEncoder passwordEncoder,
-            AuthenticationManager authenticationManager) {
-        this.authUserRepository = authUserRepository;
-        this.passwordEncoder = passwordEncoder;
+    public AuthController(AuthenticationManager authenticationManager, 
+                         JwtUtil jwtUtil, 
+                         UserDetailsService userDetailsService) {
         this.authenticationManager = authenticationManager;
-    }
-
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody AuthUser authUser) {
-        if (authUserRepository.existsByUsername(authUser.getUsername())) {
-            return ResponseEntity.badRequest().body("Username already exists");
-        }
-        
-        if (authUserRepository.existsByEmail(authUser.getEmail())) {
-            return ResponseEntity.badRequest().body("Email already exists");
-        }
-        
-        AuthUser newUser = new AuthUser();
-        newUser.setUsername(authUser.getUsername());
-        newUser.setPassword(passwordEncoder.encode(authUser.getPassword()));
-        newUser.setEmail(authUser.getEmail());
-        newUser.setFirstName(authUser.getFirstName());
-        newUser.setLastName(authUser.getLastName());
-        newUser.setIsActive(true);
-        newUser.setIsStaff(false);
-        newUser.setIsSuperuser(false);
-        newUser.setDateJoined(LocalDateTime.now());
-        
-        authUserRepository.save(newUser);
-        
-        return ResponseEntity.ok(
-            Map.of("message", "User registered successfully", "username", newUser.getUsername())
-        );
+        this.jwtUtil = jwtUtil;
+        this.userDetailsService = userDetailsService;
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestParam String username, 
-                                 @RequestParam String password) {
-        System.out.println("Hello World!");
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(username, password)
-            );
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            return ResponseEntity.ok(Map.of("message", "Login successful"));
-        } catch (AuthenticationException e) {
-            return ResponseEntity.status(401).body("Invalid credentials");
+    public AuthResponse login(@RequestBody LoginRequest loginRequest) {
+        authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(
+                loginRequest.getUsername(),
+                loginRequest.getPassword()
+            )
+        );
+        
+        final UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.getUsername());
+        final String jwt = jwtUtil.generateToken(userDetails);
+        
+        return new AuthResponse(jwt);
+    }
+
+    public static class LoginRequest {
+        private String username;
+        private String password;
+
+        public String getUsername() { return username; }
+        public void setUsername(String username) { this.username = username; }
+        public String getPassword() { return password; }
+        public void setPassword(String password) { this.password = password; }
+    }
+
+    public static class AuthResponse {
+        private String token;
+
+        public AuthResponse(String token) {
+            this.token = token;
         }
+
+        public String getToken() { return token; }
+        public void setToken(String token) { this.token = token; }
     }
 }
