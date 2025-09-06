@@ -17,19 +17,26 @@ import java.util.function.Function;
 public class JwtUtil {
 
     private final SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60; // 5 hours
+    private static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60; // 5 hours default
 
+    // Default token (5 hours)
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, userDetails.getUsername());
+        return createToken(claims, userDetails.getUsername(), JWT_TOKEN_VALIDITY * 1000);
     }
 
-    private String createToken(Map<String, Object> claims, String subject) {
+    // Custom token with custom expiration (ms)
+    public String generateToken(UserDetails userDetails, long expiryMillis) {
+        Map<String, Object> claims = new HashMap<>();
+        return createToken(claims, userDetails.getUsername(), expiryMillis);
+    }
+
+    private String createToken(Map<String, Object> claims, String subject, long expiryMillis) {
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
+                .setExpiration(new Date(System.currentTimeMillis() + expiryMillis))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
