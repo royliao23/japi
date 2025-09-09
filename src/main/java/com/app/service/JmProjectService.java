@@ -1,5 +1,7 @@
 package com.app.service;
 
+import com.app.dto.CompanyUpdate;
+import com.app.model.Company;
 import com.app.model.JmProject;
 import com.app.repository.JmProjectRepository;
 import org.springframework.stereotype.Service;
@@ -26,5 +28,32 @@ public class JmProjectService {
     
     public List<JmProject> getProjectsByStatus(String status) {
         return repository.findByStatus(status);
+    }
+
+    public JmProject getById(Integer id) {
+        return repository.findById(id)
+                .orElseThrow(() -> {
+            return new RuntimeException("Project not found");
+        });
+    }
+    public JmProject update(Integer id, JmProject project) {
+        JmProject existingProject = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Project not found"));
+
+        if (project.getProjectName() != null) existingProject.setProjectName(project.getProjectName());
+        if (project.getDescription() != null) existingProject.setDescription(project.getDescription());
+        if (project.getStatus() != null) existingProject.setStatus(project.getStatus());
+        if (project.getStartDate() != null) existingProject.setStartDate(project.getStartDate());
+        if (project.getEndDate() != null) existingProject.setEndDate(project.getEndDate());
+
+        return repository.save(existingProject);
+    }
+       
+
+    public void delete(Integer id) {
+        if (!repository.existsById(id)) {
+            throw new RuntimeException("Project not found");
+        }
+        repository.deleteById(id);
     }
 }

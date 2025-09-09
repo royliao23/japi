@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.http.ResponseEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,7 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/projects")
+@RequestMapping("/high/projects")
 public class JmProjectController {
     
     private final JmProjectService service;
@@ -48,5 +49,25 @@ public class JmProjectController {
     @GetMapping("/status/{status}")
     public List<JmProject> getProjectsByStatus(@PathVariable String status) {
         return service.getProjectsByStatus(status);
+    }
+    // READ single
+    @GetMapping("/{id}")
+    public ResponseEntity<JmProject> getProject(@PathVariable Integer id) {
+        return ResponseEntity.ok(service.getById(id));
+    }
+
+    
+    // UPDATE
+    @PutMapping("/{id}")
+    public ResponseEntity<JmProject> updateProject(@PathVariable Integer id,
+                                                 @RequestBody JmProject project) {
+        return ResponseEntity.ok(service.update(id, project));
+    }
+
+    // DELETE
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProject(@PathVariable Integer id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }
