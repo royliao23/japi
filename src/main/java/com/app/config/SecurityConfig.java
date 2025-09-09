@@ -33,7 +33,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/auth/login").permitAll()
-                .requestMatchers("/high/company/**").authenticated()
+                .requestMatchers("/high/**").authenticated()
                 .anyRequest().permitAll()
             )
             .sessionManagement(session -> session
