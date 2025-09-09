@@ -113,7 +113,7 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
         <configuration>
-          <mainClass>com.example.DisplayPersonsfile</mainClass>
+          <mainClass>com.app.DisplayPersonsfile</mainClass>
         </configuration>
       </plugin>
       
