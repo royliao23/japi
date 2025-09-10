@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 @RestController
-@RequestMapping("/high/categ")
+@RequestMapping("/high/categ/")
 public class CategoryController {
 
     private final CategoryRepository categoryRepository;
@@ -34,7 +34,7 @@ public class CategoryController {
     }
 
     // GET /high/categ/{id}
-    @GetMapping("/{id}")
+    @GetMapping("{id}/")
     public ResponseEntity<?> getCategory(@PathVariable Integer id) {
         Optional<Category> category = categoryRepository.findById(id);
         if (category.isEmpty()) {
@@ -44,7 +44,7 @@ public class CategoryController {
     }
 
     // PUT /high/categ/{id}
-    @PutMapping("/{id}")
+    @PutMapping("{id}/")
     public ResponseEntity<?> updateCategory(@PathVariable Integer id, @RequestBody Category category) {
         return categoryRepository.findById(id)
                 .map(existing -> {
@@ -56,7 +56,7 @@ public class CategoryController {
     }
 
     // DELETE /high/categ/{id}
-    @DeleteMapping("/{id}")
+    @DeleteMapping("{id}/")
     public ResponseEntity<?> deleteCategory(@PathVariable Integer id) {
         return categoryRepository.findById(id)
                 .map(category -> {

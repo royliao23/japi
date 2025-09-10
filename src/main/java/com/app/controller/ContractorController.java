@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/high/contractor")
+@RequestMapping("/high/contractor/")
 public class ContractorController {
 
     private final ContractorRepository contractorRepository;
@@ -32,7 +32,7 @@ public class ContractorController {
     }
 
     // Get one contractor (GET /high/contractor/{id})
-    @GetMapping("/{id}")
+    @GetMapping("{id}/")
     public ResponseEntity<?> getContractor(@PathVariable Integer id) {
         Optional<Contractor> contractor = contractorRepository.findById(id);
         if (contractor.isEmpty()) {
@@ -42,7 +42,7 @@ public class ContractorController {
     }
 
     // Update contractor (PUT /high/contractor/{id})
-    @PutMapping("/{id}")
+    @PutMapping("{id}/")
     public ResponseEntity<?> updateContractor(@PathVariable Integer id, @RequestBody Contractor update) {
         Optional<Contractor> contractorOpt = contractorRepository.findById(id);
         if (contractorOpt.isEmpty()) {
@@ -66,7 +66,7 @@ public class ContractorController {
     }
 
     // Delete contractor (DELETE /high/contractor/{id})
-    @DeleteMapping("/{id}")
+    @DeleteMapping("{id}/")
     public ResponseEntity<?> deleteContractor(@PathVariable Integer id) {
         Optional<Contractor> contractor = contractorRepository.findById(id);
         if (contractor.isEmpty()) {

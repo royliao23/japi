@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/high/company")
+@RequestMapping("/high/company/")
 public class CompanyController {
 
     private final CompanyService service;
@@ -27,7 +27,7 @@ public class CompanyController {
     }
 
     // READ single
-    @GetMapping("/{id}")
+    @GetMapping("{id}/")
     public ResponseEntity<Company> getCompany(@PathVariable Long id) {
         return ResponseEntity.ok(service.getById(id));
     }
@@ -42,14 +42,14 @@ public class CompanyController {
     }
 
     // UPDATE
-    @PutMapping("/{id}")
+    @PutMapping("{id}/")
     public ResponseEntity<Company> updateCompany(@PathVariable Long id,
                                                  @RequestBody CompanyUpdate dto) {
         return ResponseEntity.ok(service.update(id, dto));
     }
 
     // DELETE
-    @DeleteMapping("/{id}")
+    @DeleteMapping("{id}/")
     public ResponseEntity<Void> deleteCompany(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
