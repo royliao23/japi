@@ -1,11 +1,13 @@
 package com.app.repository;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * A Data Transfer Object (DTO) to format the response for the project creation endpoint.
  * This is to ensure the response keys match the original FastAPI code.
- * Removed Lombok annotations.
  */
 public class ProjectCreationResponse {
+    @JsonProperty("id")
     private Long code;
     private String name;
     private String message;

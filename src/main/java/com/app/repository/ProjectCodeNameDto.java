@@ -7,23 +7,23 @@ package com.app.repository;
  * Removed Lombok annotations.
  */
 public class ProjectCodeNameDto {
-    private Long code;
+    private Long id;
     private String projectName;
 
     public ProjectCodeNameDto() {
     }
 
     public ProjectCodeNameDto(Long code, String projectName) {
-        this.code = code;
+        this.id = code;
         this.projectName = projectName;
     }
 
     public Long getCode() {
-        return code;
+        return id;
     }
 
     public void setCode(Long code) {
-        this.code = code;
+        this.id = code;
     }
 
     public String getProjectName() {

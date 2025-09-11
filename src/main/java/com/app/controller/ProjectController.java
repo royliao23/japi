@@ -64,9 +64,14 @@ public class ProjectController {
      * @return A map with a "projects" key containing a list of all projects.
      */
     @GetMapping
-    public Map<String, List<Project>> readAllProjects() {
+    public Map<String, List<Project>> readAllProjectsDict() {
         List<Project> projects = projectRepository.findAll();
         return Collections.singletonMap("projects", projects);
+    }
+
+    @GetMapping("dict/")
+    public List<Project> readAllProjects() {
+        return projectRepository.findAll();
     }
 
     /**

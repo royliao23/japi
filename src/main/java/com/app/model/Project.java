@@ -1,68 +1,62 @@
 package com.app.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Column;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+import java.util.Objects;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Represents the Project entity, which maps to the 'projects' table in the database.
+ * Project Model that represents a project entity in the database.
  * This class corresponds to the 'Project' Pydantic model in the FastAPI code.
- * Replaced Lombok annotations with explicit getters and setters.
  */
 @Entity
+@Table(name = "projects")
 public class Project {
 
-    /**
-     * The unique identifier for the project. This is the primary key.
-     * Corresponds to the 'code' field in the FastAPI model.
-     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @JsonProperty("id")
+    @Column(name = "id")
+    private Long code;
 
-    /**
-     * The name of the project. Cannot be blank.
-     */
-    @NotBlank(message = "Project name cannot be blank")
+    @NotBlank(message = "Project name is mandatory")
+    @Size(max = 255)
     @Column(name = "project_name")
     private String projectName;
 
-    /**
-     * A description of the project.
-     */
+    @NotBlank(message = "Description is mandatory")
+    @Lob // For larger text fields
     private String description;
 
-    /**
-     * The current status of the project.
-     */
+    @NotBlank(message = "Status is mandatory")
+    @Size(max = 50)
     private String status;
 
-    /**
-     * The manager assigned to the project.
-     */
+    @NotBlank(message = "Manager is mandatory")
+    @Size(max = 255)
     private String manager;
 
-    // Default constructor is required by JPA
     public Project() {
     }
 
-    public Project(Long id, String projectName, String description, String status, String manager) {
-        this.id = id;
+    public Project(Long code, String projectName, String description, String status, String manager) {
+        this.code = code;
         this.projectName = projectName;
         this.description = description;
         this.status = status;
         this.manager = manager;
     }
 
-    public Long getId() {
-        return id;
+    // Getters and Setters
+    public Long getCode() {
+        return code;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setCode(Long code) {
+        this.code = code;
     }
 
     public String getProjectName() {
@@ -97,11 +91,16 @@ public class Project {
         this.manager = manager;
     }
 
-    /**
-     * The 'code' property is added to match the FastAPI response format for creation.
-     * It's a derived property that returns the entity's ID.
-     */
-    public Long getCode() {
-        return this.id;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Project project = (Project) o;
+        return Objects.equals(code, project.code);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(code);
     }
 }
