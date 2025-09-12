@@ -2,10 +2,9 @@ package com.app.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * A Data Transfer Object (DTO) to format the response for the job creation endpoint.
- * This is to ensure the response keys match the original FastAPI code.
- */
+
+/* A Data Transfer Object (DTO) to format the response for the job creation endpoint. */
+
 public class JobCreationResponse {
 
     @JsonProperty("id")

@@ -17,12 +17,12 @@ import java.util.function.Function;
 public class JwtUtil {
 
     private final SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60; // 5 hours default
+    private static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60 * 1000; // 5 hours in milliseconds
 
     // Default token (5 hours)
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, userDetails.getUsername(), JWT_TOKEN_VALIDITY * 1000);
+        return createToken(claims, userDetails.getUsername(), JWT_TOKEN_VALIDITY);
     }
 
     // Custom token with custom expiration (ms)
@@ -33,11 +33,11 @@ public class JwtUtil {
 
     private String createToken(Map<String, Object> claims, String subject, long expiryMillis) {
         return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(subject)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + expiryMillis))
-                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .claims(claims)
+                .subject(subject)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + expiryMillis))
+                .signWith(secretKey, Jwts.SIG.HS256)
                 .compact();
     }
 
@@ -60,11 +60,11 @@ public class JwtUtil {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(secretKey)
+        return Jwts.parser()
+                .verifyWith(secretKey)
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
     private Boolean isTokenExpired(String token) {
