@@ -1,19 +1,28 @@
 package com.app.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 @Configuration
 public class JacksonConfig {
 
     @Bean
-    public ObjectMapper objectMapper(Jackson2ObjectMapperBuilder builder) {
-        ObjectMapper objectMapper = builder.createXmlMapper(false).build();
-        objectMapper.registerModule(new JavaTimeModule());
-        return objectMapper;
+    public ObjectMapper objectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        
+        // Ensures all JSON keys use snake_case (e.g., contractor_name, created_at)
+        mapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
+        
+        // Register JavaTimeModule for LocalDateTime support
+        mapper.registerModule(new JavaTimeModule());
+        
+        // Optional: Additional configuration for better date/time handling
+        // mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        // mapper.disable(DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE);
+        
+        return mapper;
     }
 }
-
