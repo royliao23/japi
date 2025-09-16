@@ -1,0 +1,96 @@
+package com.app.model;
+
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "jobby")
+public class Invoice {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer code;
+
+    private Double cost;
+    private Double paid;
+    private String description;
+
+    @Column(name = "po_id")
+    private Integer poId;
+
+    @Column(name = "job_id")
+    private Integer jobId;
+
+    @Column(name = "by_id")
+    private Integer byId;
+
+    @Column(name = "project_id")
+    private Integer projectId;
+
+    private String ref;
+
+    @Column(name = "due_at")
+    private LocalDate dueAt;
+
+    private String contact;
+    private String status;
+    private String note;
+
+    @Column(name = "create_at")
+    private OffsetDateTime createAt;
+
+    @Column(name = "updated_at")
+    private OffsetDateTime updatedAt;
+
+    // Getters and Setters
+    public Integer getCode() { return code; }
+    public void setCode(Integer code) { this.code = code; }
+
+    public Double getCost() { return cost; }
+    public void setCost(Double cost) { this.cost = cost; }
+
+    public Double getPaid() { return paid; }
+    public void setPaid(Double paid) { this.paid = paid; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+
+    public Integer getPoId() { return poId; }
+    public void setPoId(Integer poId) { this.poId = poId; }
+
+    public Integer getJobId() { return jobId; }
+    public void setJobId(Integer jobId) { this.jobId = jobId; }
+
+    public Integer getById() { return byId; }
+    public void setById(Integer byId) { this.byId = byId; }
+
+    public Integer getProjectId() { return projectId; }
+    public void setProjectId(Integer projectId) { this.projectId = projectId; }
+
+    public String getRef() { return ref; }
+    public void setRef(String ref) { this.ref = ref; }
+
+    public LocalDate getDueAt() { return dueAt; }
+    public void setDueAt(LocalDate dueAt) { this.dueAt = dueAt; }
+
+    public String getContact() { return contact; }
+    public void setContact(String contact) { this.contact = contact; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public String getNote() { return note; }
+    public void setNote(String note) { this.note = note; }
+
+    public OffsetDateTime getCreateAt() { return createAt; }
+    public void setCreateAt(OffsetDateTime createAt) { this.createAt = createAt; }
+
+    public OffsetDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(OffsetDateTime updatedAt) { this.updatedAt = updatedAt; }
+}
