@@ -7,10 +7,10 @@ public class InvoiceRequest {
     private Double cost;
     private Double paid;
     private String description;
-    private Integer poId;
-    private Integer jobId;
-    private Integer byId;
-    private Integer projectId;
+    private Long poId;
+    private Long jobId;
+    private Long byId;
+    private Long projectId;
     private String ref;
     private LocalDate dueAt;
     private String contact;
@@ -29,17 +29,17 @@ public class InvoiceRequest {
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
 
-    public Integer getPoId() { return poId; }
-    public void setPoId(Integer poId) { this.poId = poId; }
+    public Long getPoId() { return poId; }
+    public void setPoId(Long poId) { this.poId = poId; }
 
-    public Integer getJobId() { return jobId; }
-    public void setJobId(Integer jobId) { this.jobId = jobId; }
+    public Long getJobId() { return jobId; }
+    public void setJobId(Long jobId) { this.jobId = jobId; }
 
-    public Integer getById() { return byId; }
-    public void setById(Integer byId) { this.byId = byId; }
+    public Long getById() { return byId; }
+    public void setById(Long byId) { this.byId = byId; }
 
-    public Integer getProjectId() { return projectId; }
-    public void setProjectId(Integer projectId) { this.projectId = projectId; }
+    public Long getProjectId() { return projectId; }
+    public void setProjectId(Long projectId) { this.projectId = projectId; }
 
     public String getRef() { return ref; }
     public void setRef(String ref) { this.ref = ref; }

@@ -14,13 +14,13 @@ import jakarta.persistence.Table;
 public class Pay {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer code;
+    private Long code;
 
     private Double amount;
     @Column(name = "pay_via")
     private String payVia;
     @Column(name = "invoice_id")
-    private Integer invoiceId;
+    private Long invoiceId;
     @Column(name = "supply_invoice")
     private String supplyInvoice;
     @Column(name = "approved_by")
@@ -32,14 +32,14 @@ public class Pay {
     private OffsetDateTime updatedAt;
 
     // Getters and setters
-    public Integer getCode() { return code; }
-    public void setCode(Integer code) { this.code = code; }
+    public Long getCode() { return code; }
+    public void setCode(Long code) { this.code = code; }
     public Double getAmount() { return amount; }
     public void setAmount(Double amount) { this.amount = amount; }
     public String getPayVia() { return payVia; }
     public void setPayVia(String payVia) { this.payVia = payVia; }
-    public Integer getInvoiceId() { return invoiceId; }
-    public void setInvoiceId(Integer invoiceId) { this.invoiceId = invoiceId; }
+    public Long getInvoiceId() { return invoiceId; }
+    public void setInvoiceId(Long invoiceId) { this.invoiceId = invoiceId; }
     public String getSupplyInvoice() { return supplyInvoice; }
     public void setSupplyInvoice(String supplyInvoice) { this.supplyInvoice = supplyInvoice; }
     public String getApprovedBy() { return approvedBy; }

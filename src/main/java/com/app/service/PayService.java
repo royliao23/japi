@@ -1,14 +1,20 @@
 package com.app.service;
 
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.app.dto.EnhancedPaymentResponse;
 import com.app.model.Invoice;
 import com.app.model.Pay;
 import com.app.repository.InvoiceRepository;
 import com.app.repository.PayRepository;
+
 
 @Service
 public class PayService {
@@ -33,37 +39,71 @@ public class PayService {
     public List<Pay> getAllPays() {
         return payRepository.findAllByOrderByCodeDesc();
     }
+    public List<EnhancedPaymentResponse> getAllPaymentsWithInvoiceDetails() {
+        List<Pay> payments = payRepository.findAllByOrderByCodeDesc();
+        List<EnhancedPaymentResponse> enhancedPayments = new ArrayList<>();
 
-    @Transactional
-    public Pay updatePay(Long code, Pay pay) {
-        Pay existingPay = getPayById(code);
-        if (existingPay == null) return null;
-
-        existingPay.setAmount(pay.getAmount());
-        existingPay.setInvoiceId(pay.getInvoiceId());
-        existingPay.setCode(pay.getCode());
-        existingPay.setNote(pay.getNote());
-        existingPay.setCreateAt(pay.getCreateAt());
-        existingPay.setUpdatedAt(pay.getUpdatedAt());
-
-        return payRepository.save(existingPay);
+        for (Pay payment : payments) {
+            EnhancedPaymentResponse enhanced = convertToEnhancedResponse(payment);
+            
+            // Get invoice details
+            Invoice invoice = invoiceRepository.findById(payment.getInvoiceId()).orElse(null);
+            if (invoice != null) {
+                enhanced.setJobby(convertInvoiceToMap(invoice));
+            }
+            
+            enhancedPayments.add(enhanced);
+        }
+        
+        return enhancedPayments;
     }
 
     @Transactional
-    public void updateInvoicePayment(Integer invoiceId) {
-        Invoice invoice = invoiceRepository.findById(invoiceId).orElse(null);
-        if (invoice == null) return;
+    public Pay updatePayment(Long payId, Pay paymentDetails) {
+        Pay payment = payRepository.findById(payId)
+                .orElseThrow(() -> new RuntimeException("Payment not found"));
+        
+        // Check if payment is older than 30 days
+        if (payment.getCreateAt().plusDays(30).isBefore(OffsetDateTime.now())) {
+            throw new RuntimeException("Cannot edit payment more than 30 days after creation");
+        }
+        
+        // Get original payment amount
+        Double originalAmount = payment.getAmount();
+        
+        // Update payment fields
+        payment.setAmount(paymentDetails.getAmount());
+        payment.setPayVia(paymentDetails.getPayVia());
+        payment.setInvoiceId(paymentDetails.getInvoiceId());
+        payment.setSupplyInvoice(paymentDetails.getSupplyInvoice());
+        payment.setApprovedBy(paymentDetails.getApprovedBy());
+        payment.setNote(paymentDetails.getNote());
+        // payment.setUpdatedAt(OffsetDateTime.now());
 
-        Double totalPaid = payRepository.sumAmountByInvoiceId(invoiceId);
-        if (totalPaid == null) totalPaid = 0.0;
+        Pay updatedPayment = payRepository.save(payment);
+        updateInvoicePayment(payment.getInvoiceId());
+        
+        return updatedPayment;
+    }
 
+    private void updateInvoicePayment(Long invoiceId) {
+        Double totalPaid = payRepository.getTotalPaidByInvoiceId(invoiceId);
+        Invoice invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() -> new RuntimeException("Invoice not found"));
+        
+        Double cost = invoice.getCost() != null ? invoice.getCost() : 0.0;
+        String status;
+        
+        if (totalPaid >= cost) {
+            status = "paid";
+        } else if (totalPaid > 0) {
+            status = "partial paid";
+        } else {
+            status = "unpaid";
+        }
+        
         invoice.setPaid(totalPaid);
-
-        // Update status
-        double cost = invoice.getCost() != null ? invoice.getCost() : 0.0;
-        String status = totalPaid >= cost ? "paid" : (totalPaid > 0 ? "partial paid" : "unpaid");
         invoice.setStatus(status);
-
         invoiceRepository.save(invoice);
     }
 
@@ -86,6 +126,31 @@ public class PayService {
 
     public List<Pay> searchPays(String keyword) {
        return payRepository.findByKeyword(keyword);
+    }
+    private EnhancedPaymentResponse convertToEnhancedResponse(Pay payment) {
+        EnhancedPaymentResponse response = new EnhancedPaymentResponse();
+        response.setCode(payment.getCode());
+        response.setAmount(payment.getAmount());
+        response.setPayVia(payment.getPayVia());
+        response.setInvoiceId(payment.getInvoiceId());
+        response.setSupplyInvoice(payment.getSupplyInvoice());
+        response.setApprovedBy(payment.getApprovedBy());
+        response.setNote(payment.getNote());
+        response.setCreateAt(payment.getCreateAt() != null ? payment.getCreateAt().toString() : null);
+        response.setUpdatedAt(payment.getUpdatedAt() != null ? payment.getUpdatedAt().toString() : null);
+        return response;
+    }
+    
+    private Map<String, Object> convertInvoiceToMap(Invoice invoice) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("code", invoice.getCode());
+        map.put("due_at", invoice.getDueAt());
+        map.put("cost", invoice.getCost());
+        map.put("status", invoice.getStatus());
+        map.put("by_id", invoice.getById());
+        map.put("project_id", invoice.getProjectId());
+        map.put("job_id", invoice.getJobId());
+        return map;
     }
 }
 

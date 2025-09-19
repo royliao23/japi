@@ -82,14 +82,14 @@ public class InvoiceController {
     }
     
     @GetMapping("{id}/")
-    public ResponseEntity<Invoice> getInvoiceById(@PathVariable Integer id) {
+    public ResponseEntity<Invoice> getInvoiceById(@PathVariable Long id) {
         Optional<Invoice> invoice = invoiceService.getInvoiceById(id);
         return invoice.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
     
     @PutMapping("{id}/")
-    public ResponseEntity<Invoice> updateInvoice(@PathVariable Integer id, 
+    public ResponseEntity<Invoice> updateInvoice(@PathVariable Long id, 
                                                @RequestBody InvoiceRequest invoiceRequest) {
         Invoice invoice = new Invoice();
         // Map fields from request to entity
@@ -117,7 +117,7 @@ public class InvoiceController {
     }
     
     @PutMapping("status/{id}/")
-    public ResponseEntity<Invoice> updateInvoiceStatus(@PathVariable Integer id, 
+    public ResponseEntity<Invoice> updateInvoiceStatus(@PathVariable Long id, 
                                                      @RequestBody StatusUpdate statusUpdate) {
         try {
             Invoice updatedInvoice = invoiceService.updateInvoiceStatus(id, statusUpdate.getStatus());
@@ -128,7 +128,7 @@ public class InvoiceController {
     }
     
     @DeleteMapping("{id}/")
-    public ResponseEntity<Void> deleteInvoice(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteInvoice(@PathVariable Long id) {
         try {
             invoiceService.deleteInvoice(id);
             return ResponseEntity.ok().build();

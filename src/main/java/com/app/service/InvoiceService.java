@@ -36,7 +36,7 @@ public class InvoiceService {
     }
     
     
-    public Optional<Invoice> getInvoiceById(Integer id) {
+    public Optional<Invoice> getInvoiceById(Long id) {
         return invoiceRepository.findById(id);
     }
     
@@ -44,8 +44,8 @@ public class InvoiceService {
         return invoiceRepository.save(invoice);
     }
     
-    public Invoice updateInvoice(Integer id, Invoice invoiceDetails) {
-        Invoice invoice = invoiceRepository.findById(id)
+    public Invoice updateInvoice(Long id, Invoice invoiceDetails) {
+        Invoice invoice = invoiceRepository.findById(id.longValue())
                 .orElseThrow(() -> new RuntimeException("Invoice not found"));
         
         invoice.setCost(invoiceDetails.getCost());
@@ -65,8 +65,8 @@ public class InvoiceService {
         return invoiceRepository.save(invoice);
     }
     
-    public Invoice updateInvoiceStatus(Integer id, String status) {
-        Invoice invoice = invoiceRepository.findById(id)
+    public Invoice updateInvoiceStatus(Long id, String status) {
+        Invoice invoice = invoiceRepository.findById(id.longValue())
                 .orElseThrow(() -> new RuntimeException("Invoice not found"));
         
         invoice.setStatus(status);
@@ -74,14 +74,14 @@ public class InvoiceService {
     }
     
     @Transactional
-    public void deleteInvoice(Integer id) {
-        if (!invoiceRepository.existsById(id)) {
+    public void deleteInvoice(Long id) {
+        if (!invoiceRepository.existsById(id.longValue())) {
             throw new RuntimeException("Invoice not found");
         }
-        invoiceRepository.deleteById(id);
+        invoiceRepository.deleteById(id.longValue());
     }
     
-    public List<Invoice> getInvoicesByJobsAndProject(List<Integer> jobCodes, Integer projectCode) {
+    public List<Invoice> getInvoicesByJobsAndProject(List<Long> jobCodes, Long projectCode) {
         return invoiceRepository.findByJobIdsAndProjectId(jobCodes, projectCode);
     }
     // public List<InvoiceWithPaymentsResponse> getInvoicesWithPayments() {

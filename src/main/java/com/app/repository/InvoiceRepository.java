@@ -10,13 +10,13 @@ import org.springframework.stereotype.Repository;
 import com.app.model.Invoice;
 
 @Repository
-public interface InvoiceRepository extends JpaRepository<Invoice, Integer> {
+public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
     
     List<Invoice> findByStatusNotOrderByCodeDesc(String status);
     
     @Query("SELECT i FROM Invoice i WHERE i.jobId IN :jobIds AND (:projectId IS NULL OR i.projectId = :projectId)")
-    List<Invoice> findByJobIdsAndProjectId(@Param("jobIds") List<Integer> jobIds, 
-                                          @Param("projectId") Integer projectId);
-    
+    List<Invoice> findByJobIdsAndProjectId(@Param("jobIds") List<Long> jobIds,
+                                          @Param("projectId") Long projectId);
+
     // Remove the native query and use separate queries instead
 }

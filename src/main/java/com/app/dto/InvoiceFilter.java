@@ -4,22 +4,22 @@ import java.util.List;
 
 
 public class InvoiceFilter {
-    private List<Integer> jobCodes;
-    private Integer projectCode;
+    private List<Long> jobCodes;
+    private Long projectCode;
 
-    public List<Integer> getJobCodes() {
+    public List<Long> getJobCodes() {
         return jobCodes;
     }
 
-    public void setJobCodes(List<Integer> jobCodes) {
+    public void setJobCodes(List<Long> jobCodes) {
         this.jobCodes = jobCodes;
     }
 
-    public Integer getProjectCode() {
+    public Long getProjectCode() {
         return projectCode;
     }
 
-    public void setProjectCode(Integer projectCode) {
+    public void setProjectCode(Long projectCode) {
         this.projectCode = projectCode;
     }
 }

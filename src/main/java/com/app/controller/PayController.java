@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.app.dto.EnhancedPaymentResponse;
 import com.app.dto.PayRequest;
 import com.app.dto.StatusUpdate;
 import com.app.model.Pay;
@@ -37,7 +38,7 @@ public class PayController {
         Pay pay = new Pay();
         pay.setAmount(payRequest.getAmount());
         // pay.setPaid(payRequest.getPaid());
-        // pay.setMethod(payRequest.getMethod());
+        pay.setPayVia(payRequest.getPayVia());
         pay.setInvoiceId(payRequest.getInvoiceId());
         pay.setCode(payRequest.getCode());
         // pay.setRef(payRequest.getRef());
@@ -52,46 +53,46 @@ public class PayController {
 
     // ✅ Get all pays
     @GetMapping
-    public ResponseEntity<List<Pay>> getAllPays() {
-        return ResponseEntity.ok(payService.getAllPays());
+    public ResponseEntity<List<EnhancedPaymentResponse>> getAllPayments() {
+        List<EnhancedPaymentResponse> payments = payService.getAllPaymentsWithInvoiceDetails();
+        return ResponseEntity.ok(payments);
     }
 
     // ✅ Get pay by ID
-    @GetMapping("/{id}")
+    @GetMapping("{id}/")
     public ResponseEntity<Pay> getPayById(@PathVariable Long id) {
         Pay pay = payService.getPayById(id);
         return pay != null ? ResponseEntity.ok(pay) : ResponseEntity.notFound().build();
     }
 
     // ✅ Update pay
-    @PutMapping("/{id}")
-    public ResponseEntity<Pay> updatePay(@PathVariable Long id,
-                                         @RequestBody PayRequest payRequest) {
-        Pay pay = new Pay();
-        pay.setAmount(payRequest.getAmount());
-        // pay.setPaid(payRequest.getPaid());
-        // pay.setMethod(payRequest.getMethod());
-        pay.setInvoiceId(payRequest.getInvoiceId());
-        pay.setCode(payRequest.getCode());
-        // pay.setRef(payRequest.getRef());
-        // pay.setStatus(payRequest.getStatus());
-        pay.setNote(payRequest.getNote());
-        pay.setCreateAt(payRequest.getCreateAt());
-        pay.setUpdatedAt(payRequest.getUpdatedAt());
-
-        Pay updatedPay = payService.updatePay(id, pay);
-        return updatedPay != null ? ResponseEntity.ok(updatedPay) : ResponseEntity.notFound().build();
+   @PutMapping("{payId}/")
+    public ResponseEntity<?> updatePayment(@PathVariable Long payId, @RequestBody PayRequest paymentRequest) {
+        try {
+            Pay payment = new Pay();
+            payment.setAmount(paymentRequest.getAmount());
+            payment.setPayVia(paymentRequest.getPayVia());
+            payment.setInvoiceId(paymentRequest.getInvoiceId());
+            payment.setSupplyInvoice(paymentRequest.getSupplyInvoice());
+            payment.setApprovedBy(paymentRequest.getApprovedBy());
+            payment.setNote(paymentRequest.getNote());
+            
+            Pay updatedPayment = payService.updatePayment(payId, payment);
+            return ResponseEntity.ok().body(updatedPayment);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     // ✅ Delete pay
-    @DeleteMapping("/{id}")
+    @DeleteMapping("{id}/")
     public ResponseEntity<Void> deletePay(@PathVariable Long id) {
         payService.deletePay(id);
         return ResponseEntity.noContent().build();
     }
 
     // ✅ Update only status
-    @PatchMapping("/{id}/status")
+    @PatchMapping("{id}/status/")
     public ResponseEntity<Pay> updatePayStatus(@PathVariable Long id,
                                                @RequestBody StatusUpdate statusUpdate) {
         Pay updatedPay = payService.updateStatus(id, statusUpdate.getStatus());
@@ -105,7 +106,7 @@ public class PayController {
     // }
 
     // ✅ Search pays by reference or note
-    @GetMapping("/search")
+    @GetMapping("search/")
     public ResponseEntity<List<Pay>> searchPays(@RequestParam String keyword) {
         return ResponseEntity.ok(payService.searchPays(keyword));
     }
