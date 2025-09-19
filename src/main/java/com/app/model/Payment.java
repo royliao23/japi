@@ -29,6 +29,7 @@ public class Payment {
     private Long invoiceId;
 
     private Double amount;
+    @Column(name = "pay_via")
     private String payVia;
     @CreationTimestamp
     @JsonProperty("create_at")
