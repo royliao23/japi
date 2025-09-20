@@ -1,29 +1,31 @@
 package com.app.service;
 
-// import com.app.dto.InvoiceWithPaymentsResponse;
-// import com.app.dto.PaymentResponse;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.app.dto.InvoiceWithPaymentsResponse;
 import com.app.model.Invoice;
+import com.app.model.Pay;
 import com.app.repository.InvoiceRepository;
+import com.app.repository.PayRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class InvoiceService {
     
     private final InvoiceRepository invoiceRepository;
+    private final PayRepository payRepository;
     // private final PaymentRepository paymentRepository;
     private final ObjectMapper objectMapper;
     
     public InvoiceService(InvoiceRepository invoiceRepository, 
-                         //PaymentRepository paymentRepository,
+                         PayRepository payRepository,
                          ObjectMapper objectMapper) {
         this.invoiceRepository = invoiceRepository;
-        // this.paymentRepository = paymentRepository;
+        this.payRepository = payRepository;
         this.objectMapper = objectMapper;
     }
     
@@ -84,39 +86,72 @@ public class InvoiceService {
     public List<Invoice> getInvoicesByJobsAndProject(List<Long> jobCodes, Long projectCode) {
         return invoiceRepository.findByJobIdsAndProjectId(jobCodes, projectCode);
     }
-    // public List<InvoiceWithPaymentsResponse> getInvoicesWithPayments() {
-    //     List<Invoice> invoices = invoiceRepository.findAll();
-    //     List<InvoiceWithPaymentsResponse> result = new ArrayList<>();
-        
-    //     for (Invoice invoice : invoices) {
-    //         InvoiceWithPaymentsResponse response = convertToResponse(invoice);
-    //         // Get payments for this invoice
-    //         List<PaymentResponse> payments = paymentRepository.findPaymentsByInvoiceId(invoice.getCode());
-    //         response.setPayments(payments);
-    //         result.add(response);
-    //     }
-        
-    //     return result;
-    // }
+    public InvoiceWithPaymentsResponse getInvoiceWithPayments(Long invoiceId) {
+    System.out.println("=== DEBUG: Looking for invoice ID: " + invoiceId + " ===");
     
-    // private InvoiceWithPaymentsResponse convertToResponse(Invoice invoice) {
-    //     InvoiceWithPaymentsResponse response = new InvoiceWithPaymentsResponse();
-    //     response.setCode(invoice.getCode());
-    //     response.setPoId(invoice.getPoId());
-    //     response.setRef(invoice.getRef());
-    //     response.setCost(invoice.getCost());
-    //     response.setPaid(invoice.getPaid());
-    //     response.setDueAt(invoice.getDueAt());
-    //     response.setUpdatedAt(invoice.getUpdatedAt());
-    //     response.setContact(invoice.getContact());
-    //     response.setNote(invoice.getNote());
-    //     response.setCreateAt(invoice.getCreateAt() != null ? invoice.getCreateAt().toLocalDate() : null);
-    //     response.setDescription(invoice.getDescription());
-    //     response.setJobId(invoice.getJobId());
-    //     response.setById(invoice.getById());
-    //     response.setProjectId(invoice.getProjectId());
-    //     response.setStatus(invoice.getStatus());
+    // Get the invoice
+    Invoice invoice = invoiceRepository.findById(invoiceId)
+            .orElseThrow(() -> new RuntimeException("Invoice not found for ID: " + invoiceId));
+    
+    System.out.println("Found invoice: " + invoice.getCode());
+    System.out.println("Invoice details - Cost: " + invoice.getCost() + ", Status: " + invoice.getStatus());
+    
+    // Test the pay repository with a simple count first
+    System.out.println("Testing pay repository with simple count...");
+    try {
+        long totalPayments = payRepository.count();
+        System.out.println("Total payments in database: " + totalPayments);
+    } catch (Exception e) {
+        System.out.println("Error counting payments: " + e.getMessage());
+        e.printStackTrace();
+    }
+    
+    // Test with derived query method
+    System.out.println("Testing derived query findByInvoiceId...");
+    try {
+        List<Pay> derivedPayments = payRepository.findByInvoiceId(invoiceId);
+        System.out.println("Derived query found: " + derivedPayments.size() + " payments");
         
-    //     return response;
-    //}
+        for (Pay pay : derivedPayments) {
+            System.out.println("Payment: " + pay.getCode() + ", Amount: " + pay.getAmount());
+        }
+    } catch (Exception e) {
+        System.out.println("Error with derived query: " + e.getMessage());
+        e.printStackTrace();
+    }
+    
+    // Test with custom query
+    System.out.println("Testing custom query findPaymentsByInvoiceId...");
+    try {
+        List<Pay> payments = payRepository.findPaymentsByInvoiceId(invoiceId);
+        System.out.println("Custom query found: " + payments.size() + " payments");
+        
+        // Convert to response DTO
+        InvoiceWithPaymentsResponse response = new InvoiceWithPaymentsResponse();
+        response.setCode(invoice.getCode());
+        response.setCost(invoice.getCost());
+        response.setPaid(invoice.getPaid());
+        response.setDescription(invoice.getDescription());
+        response.setPoId(invoice.getPoId());
+        response.setJobId(invoice.getJobId());
+        response.setById(invoice.getById());
+        response.setProjectId(invoice.getProjectId());
+        response.setRef(invoice.getRef());
+        response.setDueAt(invoice.getDueAt());
+        response.setContact(invoice.getContact());
+        response.setStatus(invoice.getStatus());
+        response.setNote(invoice.getNote());
+        response.setCreateAt(invoice.getCreateAt());
+        response.setUpdatedAt(invoice.getUpdatedAt());
+        response.setPay(payments);
+        
+        System.out.println("Response prepared successfully for invoice: " + invoiceId);
+        return response;
+        
+    } catch (Exception e) {
+        System.out.println("Error with custom query: " + e.getMessage());
+        e.printStackTrace();
+        throw new RuntimeException("Failed to retrieve payments for invoice: " + invoiceId, e);
+    }
+}
 }

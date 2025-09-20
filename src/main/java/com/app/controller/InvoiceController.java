@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.app.dto.InvoiceFilter;
 import com.app.dto.InvoiceRequest;
+import com.app.dto.InvoiceWithPaymentsResponse;
 import com.app.dto.StatusUpdate;
 import com.app.model.Invoice;
 import com.app.service.InvoiceService;
@@ -144,5 +145,15 @@ public class InvoiceController {
                 filter.getProjectCode()
         );
         return ResponseEntity.ok(invoices);
+    }
+    @GetMapping("singleinvpay/{invoiceId}")
+    public ResponseEntity<?> getInvoiceWithPayments(@PathVariable Long invoiceId) {
+        try {
+            InvoiceWithPaymentsResponse invoiceWithPayments = invoiceService.getInvoiceWithPayments(invoiceId);
+            return ResponseEntity.ok(invoiceWithPayments);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Invoice not found");
+        }
     }
 }
