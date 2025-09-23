@@ -1,12 +1,13 @@
 package com.app.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
-import java.util.Objects;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 /**
  * A simple model for the `jobby` table, inferred from the FastAPI code.
@@ -25,8 +26,19 @@ public class Jobby {
     @Column(name = "po_id")
     private Long poId;
 
+     @Column(name = "job_id")
+    private Long jobId;
+
+    @Column(name = "by_id")
+    private Long byId;
+
+    @Column(name = "project_id")
+    private Long projectId;
+
     private String ref;
     private Double cost;
+
+
 
     // Getters and Setters
     public Long getCode() {
@@ -59,6 +71,24 @@ public class Jobby {
 
     public void setCost(Double cost) {
         this.cost = cost;
+    }
+    public Long getJobId() {
+        return jobId;
+    }
+    public void setJobId(Long jobId) {
+        this.jobId = jobId;
+    }
+    public Long getById() {
+        return byId;
+    }
+    public void setById(Long byId) {
+        this.byId = byId;
+    }
+    public Long getProjectId() {
+        return projectId;
+    }
+    public void setProjectId(Long projectId) {
+        this.projectId = projectId;
     }
 }
 

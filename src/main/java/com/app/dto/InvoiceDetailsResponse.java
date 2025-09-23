@@ -1,10 +1,9 @@
 package com.app.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.app.model.Pay;
-import com.app.model.Jobby;
-
 import java.util.List;
+
+import com.app.model.Jobby;
+import com.app.model.Pay;
 
 /**
  * DTO to format the response for the `/inv/{invoice_id}` endpoint.
@@ -23,6 +22,10 @@ public class InvoiceDetailsResponse extends Jobby {
         this.setPoId(jobby.getPoId());
         this.setRef(jobby.getRef());
         this.setCost(jobby.getCost());
+        this.setJobId(jobby.getJobId());
+        this.setById(jobby.getById());
+        this.setProjectId(jobby.getProjectId());
+        
         this.pay = pay;
         this.paid = paid;
         this.outstanding = outstanding;
