@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.app.dto.InvoiceWithPaymentsResponse;
+import com.app.dto.PayResponse;
 import com.app.model.Invoice;
 import com.app.model.Pay;
 import com.app.repository.InvoiceRepository;
@@ -109,10 +110,10 @@ public class InvoiceService {
     // Test with derived query method
     System.out.println("Testing derived query findByInvoiceId...");
     try {
-        List<Pay> derivedPayments = payRepository.findByInvoiceId(invoiceId);
+        List<PayResponse> derivedPayments = payRepository.findPayResponseByInvoiceId(invoiceId);
         System.out.println("Derived query found: " + derivedPayments.size() + " payments");
-        
-        for (Pay pay : derivedPayments) {
+
+        for (PayResponse pay : derivedPayments) {
             System.out.println("Payment: " + pay.getCode() + ", Amount: " + pay.getAmount());
         }
     } catch (Exception e) {
@@ -143,9 +144,11 @@ public class InvoiceService {
         response.setNote(invoice.getNote());
         response.setCreateAt(invoice.getCreateAt());
         response.setUpdatedAt(invoice.getUpdatedAt());
-        response.setPay(payments);
+        // response.setPayments(payments);
         
         System.out.println("Response prepared successfully for invoice: " + invoiceId);
+        // System.out.println("Response prepared successfully for invoice with details: " + response.getPayments());
+
         return response;
         
     } catch (Exception e) {
@@ -153,5 +156,6 @@ public class InvoiceService {
         e.printStackTrace();
         throw new RuntimeException("Failed to retrieve payments for invoice: " + invoiceId, e);
     }
+    
 }
 }

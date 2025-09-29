@@ -13,5 +13,10 @@ import com.app.model.Jobby;
 @Repository
 public interface JobbyRepository extends JpaRepository<Jobby, Long> {
 
+    static Jobby findByCode(Long code) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findByCode'");
+    }
+
     List<Jobby> findByPoId(Long poId);
 }

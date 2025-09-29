@@ -9,22 +9,31 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.app.dto.EnhancedPayResponse;
 import com.app.dto.EnhancedPaymentResponse;
 import com.app.model.Invoice;
 import com.app.model.Pay;
 import com.app.repository.InvoiceRepository;
 import com.app.repository.PayRepository;
-
+import com.app.repository.PayRepositoryNative;
 
 @Service
 public class PayService {
 
     private final PayRepository payRepository;
     private final InvoiceRepository invoiceRepository;
+    private final PayRepositoryNative payRepositoryNative;
 
-    public PayService(PayRepository payRepository, InvoiceRepository invoiceRepository) {
+    public PayService(PayRepository payRepository, InvoiceRepository invoiceRepository, PayRepositoryNative payRepositoryNative) {
         this.payRepository = payRepository;
         this.invoiceRepository = invoiceRepository;
+        this.payRepositoryNative = payRepositoryNative;
+    }
+
+    
+
+    public EnhancedPayResponse getPayWithInvoice(Long code) {
+        return (EnhancedPayResponse) payRepositoryNative.getPayWithInvoice(code);
     }
 
     @Transactional
@@ -152,5 +161,16 @@ public class PayService {
         map.put("job_id", invoice.getJobId());
         return map;
     }
+    // public EnhancedPayResponse getPayWithInvoice(Long code) {
+    //     Pay pay = payRepository.findByCode(code)
+    //             .orElse(null);
+
+    //     Invoice invoice = null;
+    //     if (pay.getInvoiceId() != null) {
+    //         invoice = JobbyRepository.findByCode(pay.getInvoiceId()).orElse(null);
+    //     }
+        
+    //     return new EnhancedPayResponse(pay, invoice);
+    // }
 }
 

@@ -1,5 +1,6 @@
 package com.app.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.dto.InvoiceFilter;
@@ -67,19 +67,57 @@ public class InvoiceController {
         return ResponseEntity.ok(invoiceService.getUnpaidInvoices());
     }
 
-    @GetMapping("invnpay/")
-    public ResponseEntity<List<?>> getInvoicesWithPayments(
-            @RequestParam(defaultValue = "true") boolean includePayments) {
-        
-        // if (includePayments) {
-        //     return ResponseEntity.ok(invoiceService.getInvoicesWithPayments());
-        // } else {
-        //     List<Invoice> invoices = invoiceService.getAllInvoices();
-        //     // Return as List<Invoice> when not including payments
-        //     return ResponseEntity.ok(invoices);
-        // }
+    // Duplicate getInvoiceWithMultiplePayments method removed to fix compilation error.
+       
+    @GetMapping("invnpaytest/")
+    public ResponseEntity<List<InvoiceWithPaymentsResponse>> getInvoiceWithMultiplePayments() {
+
         List<Invoice> invoices = invoiceService.getAllInvoices();
-        return ResponseEntity.ok(invoices);
+        if (invoices.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
+        List<InvoiceWithPaymentsResponse> responseList = new ArrayList<>();
+        System.out.println("=====================Invoices with Payments:");
+        System.out.println(invoices);
+        responseList.add(invoiceService.getInvoiceWithPayments(invoices.get(0).getCode()));
+        // for (Invoice invoice : invoices) {
+        //     try {
+        //         System.out.println("Processing Invoice Code: " + invoice.getCode());
+        //         InvoiceWithPaymentsResponse invoiceWithPayments = invoiceService.getInvoiceWithPayments(invoice.getCode());
+        //         responseList.add(invoiceWithPayments);
+        //     } catch (RuntimeException e) {
+        //         System.out.println("!!!!!!!!!!!!!!!!!!!Invoice not found for Code: " + invoice.getCode());
+        //         return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        //                 .body(null);
+        //     }
+        // }
+        System.out.println("Response prepared successfully for invoice with details in controller: " + responseList);
+        return ResponseEntity.ok(responseList);
+    }
+    @GetMapping("invnpay/")
+    public ResponseEntity<List<InvoiceWithPaymentsResponse>> getInvoiceWithMultiplePay() {
+
+        List<Invoice> invoices = invoiceService.getAllInvoices();
+        if (invoices.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
+        List<InvoiceWithPaymentsResponse> responseList = new ArrayList<>();
+        System.out.println("=====================Invoices with Payments:");
+        System.out.println(responseList);
+        for (Invoice invoice : invoices) {
+            try {
+                System.out.println("Processing Invoice Code: " + invoice.getCode());
+                InvoiceWithPaymentsResponse invoiceWithPayments = invoiceService.getInvoiceWithPayments(invoice.getCode());
+                responseList.add(invoiceWithPayments);
+            } catch (RuntimeException e) {
+                System.out.println("!!!!!!!!!!!!!!!!!!!Invoice not found for Code: " + invoice.getCode());
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(null);
+            }
+        }
+        return ResponseEntity.ok(responseList);
     }
     
     @GetMapping("{id}/")

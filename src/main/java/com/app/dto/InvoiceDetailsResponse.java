@@ -31,6 +31,8 @@ public class InvoiceDetailsResponse extends Jobby {
         this.outstanding = outstanding;
     }
 
+    // Removed the conflicting constructor to resolve erasure clash
+
     // Getters
     public List<Pay> getPay() { return pay; }
     public Double getPaid() { return paid; }

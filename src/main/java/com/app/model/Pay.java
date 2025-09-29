@@ -1,5 +1,7 @@
 package com.app.model;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 
 import jakarta.persistence.Column;
@@ -30,6 +32,12 @@ public class Pay {
     private OffsetDateTime createAt;
     @Column(name = "updated_at")
     private OffsetDateTime updatedAt;
+    @Column(name = "due_at")
+    private LocalDate dueAt;
+    private String status;
+    private String ref;
+   
+
 
     // Getters and setters
     public Long getCode() { return code; }
@@ -59,4 +67,31 @@ public class Pay {
             status = "unpaid";
         }
     }
+    public LocalDate getDueAt() { return dueAt; }
+    public void setDueAt(LocalDate dueAt) { this.dueAt = dueAt; }
+    public Pay orElseThrow(Object object) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'orElseThrow'");
+    }
+
+    public Pay orElse(Object object) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public LocalDateTime getCreatedAt() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public String getRef() {
+        return ref;
+    }
+
+    public void setRef(String ref) {
+        this.ref = ref;
+    }
 }
+

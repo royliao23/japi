@@ -17,6 +17,6 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
     @Query("SELECT i FROM Invoice i WHERE i.jobId IN :jobIds AND (:projectId IS NULL OR i.projectId = :projectId)")
     List<Invoice> findByJobIdsAndProjectId(@Param("jobIds") List<Long> jobIds,
                                           @Param("projectId") Long projectId);
-
+    Invoice findByCode(Long code);
     // Remove the native query and use separate queries instead
 }

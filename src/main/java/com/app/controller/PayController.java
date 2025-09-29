@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.app.dto.EnhancedPayResponse;
 import com.app.dto.EnhancedPaymentResponse;
 import com.app.dto.PayRequest;
 import com.app.dto.StatusUpdate;
@@ -59,10 +60,16 @@ public class PayController {
     }
 
     // ✅ Get pay by ID
-    @GetMapping("{id}/")
+    @GetMapping("old/{id}/")
     public ResponseEntity<Pay> getPayById(@PathVariable Long id) {
         Pay pay = payService.getPayById(id);
         return pay != null ? ResponseEntity.ok(pay) : ResponseEntity.notFound().build();
+    }
+    @GetMapping("{code}/")
+    public ResponseEntity<EnhancedPayResponse> getPay(@PathVariable Long code) {
+
+        EnhancedPayResponse response = (EnhancedPayResponse) payService.getPayWithInvoice(code);
+        return ResponseEntity.ok(response);
     }
 
     // ✅ Update pay
