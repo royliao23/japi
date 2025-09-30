@@ -31,7 +31,7 @@ public class InvoiceWithPaymentsResponse {
     private OffsetDateTime updatedAt;
 
     // *** CHANGE IS HERE ***: Use the PayResponse DTO
-    private List<PayResponse> payments;
+    private List<PayResponse> pay;
 
     // Getters and Setters
     public Long getCode() { return code; }
@@ -66,6 +66,6 @@ public class InvoiceWithPaymentsResponse {
     public void setUpdatedAt(OffsetDateTime updatedAt) { this.updatedAt = updatedAt; }
 
     // *** CHANGE IS HERE ***: Getter/Setter for List<PayResponse>
-    public List<PayResponse> getPayments() { return payments; }
-    public void setPayments(List<PayResponse> payments) { this.payments = payments; }
+    public List<PayResponse> getPay() { return pay; }
+    public void setPay(List<PayResponse> pay) { this.pay = pay; }
 }

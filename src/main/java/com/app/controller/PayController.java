@@ -67,11 +67,9 @@ public class PayController {
     }
     @GetMapping("{code}/")
     public ResponseEntity<EnhancedPayResponse> getPay(@PathVariable Long code) {
-
-        EnhancedPayResponse response = (EnhancedPayResponse) payService.getPayWithInvoice(code);
+        EnhancedPayResponse response = payService.getPayWithInvoice(code);
         return ResponseEntity.ok(response);
     }
-
     // ✅ Update pay
    @PutMapping("{payId}/")
     public ResponseEntity<?> updatePayment(@PathVariable Long payId, @RequestBody PayRequest paymentRequest) {

@@ -1,51 +1,65 @@
 package com.app.repository;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.app.dto.EnhancedPayResponse;
-import com.app.model.Jobby;
-import com.app.model.Pay;
-
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import com.app.dto.JobbyResponse;
 
 @Repository
 public class PayRepositoryNative {
     
-    @PersistenceContext
-    private EntityManager entityManager;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
     
-    @SuppressWarnings("unchecked")
     public EnhancedPayResponse getPayWithInvoice(Long code) {
-        // Get pay record using SELECT *
-        String payQuery = "SELECT code, amount, invoice_id, approved_by, create_at, due_at, pay_via, supply_invoice, FROM pay WHERE code = :code";
-        List<Pay> pays = entityManager.createNativeQuery(payQuery, Pay.class)
-                .setParameter("code", code)
-                .getResultList();
+        String sql = """
+            SELECT p.code, p.amount, p.pay_via, p.invoice_id, p.supply_invoice, 
+                   p.approved_by, p.note, p.create_at, p.updated_at,
+                   j.code as jobby_code, j.due_at, j.cost, j.status, 
+                   j.by_id, j.project_id, j.job_id
+            FROM pay p
+            LEFT JOIN jobby j ON p.invoice_id = j.code
+            WHERE p.code = ?
+            """;
         
-        if (pays.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Pay not found");
-        }
-        
-        Pay pay = pays.get(0);
-        Jobby invoice = null;
-        
-        // Get invoice if invoice_id exists
-        if (pay.getInvoiceId() != null) {
-            // Use SELECT * to get all columns that match the entity mapping
-            String invoiceQuery = "SELECT * FROM jobby WHERE code = :invoiceId";
+        return jdbcTemplate.queryForObject(sql, new Object[]{code}, (rs, rowNum) -> {
+            // Create JobbyResponse
+            JobbyResponse jobby = new JobbyResponse(
+                rs.getLong("jobby_code"),
+                rs.getDate("due_at") != null ? rs.getDate("due_at").toLocalDate() : null,
+                rs.getDouble("cost"),
+                rs.getString("status"),
+                rs.getLong("by_id"),
+                rs.getLong("project_id"),
+                rs.getLong("job_id")
+            );
             
-            List<Jobby> invoices = entityManager.createNativeQuery(invoiceQuery, Jobby.class)
-                    .setParameter("invoiceId", pay.getInvoiceId())
-                    .getResultList();
+            // Convert create_at timestamp to LocalDate
+            LocalDate createAt = rs.getTimestamp("create_at") != null ? 
+                rs.getTimestamp("create_at").toLocalDateTime().toLocalDate() : null;
             
-            invoice = invoices.isEmpty() ? null : invoices.get(0);
-        }
-        
-        return new EnhancedPayResponse(pay, invoice);
+            // Convert updated_at to OffsetDateTime
+            OffsetDateTime updatedAt = rs.getTimestamp("updated_at") != null ?
+                rs.getTimestamp("updated_at").toLocalDateTime().atOffset(ZoneOffset.UTC) : null;
+            
+            return new EnhancedPayResponse(
+                rs.getLong("code"),
+                rs.getDouble("amount"),
+                rs.getString("pay_via"),
+                rs.getLong("invoice_id"),
+                rs.getString("supply_invoice"),
+                rs.getString("approved_by"),
+                rs.getString("note"),
+                createAt,
+                updatedAt,
+                jobby
+            );
+        });
     }
 }

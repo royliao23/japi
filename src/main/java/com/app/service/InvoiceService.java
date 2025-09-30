@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.app.dto.InvoiceWithPaymentsResponse;
 import com.app.dto.PayResponse;
 import com.app.model.Invoice;
-import com.app.model.Pay;
 import com.app.repository.InvoiceRepository;
 import com.app.repository.PayRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -144,10 +143,10 @@ public class InvoiceService {
         response.setNote(invoice.getNote());
         response.setCreateAt(invoice.getCreateAt());
         response.setUpdatedAt(invoice.getUpdatedAt());
-        response.setPayments(payments);
+        response.setPay(payments);
         
         System.out.println("Response prepared successfully for invoice: " + invoiceId);
-        // System.out.println("Response prepared successfully for invoice with details: " + response.getPayments());
+        // System.out.println("Response prepared successfully for invoice with details: " + response.getPay());
 
         return response;
         

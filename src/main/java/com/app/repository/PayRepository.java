@@ -1,6 +1,7 @@
 package com.app.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -32,8 +33,9 @@ public interface PayRepository extends JpaRepository<Pay, Long> {
 
     @Query("SELECT p FROM Pay p WHERE p.approvedBy LIKE %?1% OR p.supplyInvoice LIKE %?1%")
     List<Pay> findByKeyword(String keyword);
-    Pay findByCode(Long code);
 
+    Optional<Pay> findByCode(Long code);
+    
     @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Pay p WHERE p.invoiceId = :invoiceId")
     Double getTotalPaidByInvoiceId(@Param("invoiceId") Long invoiceId);
 }
