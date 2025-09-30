@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
 
-import com.app.model.Pay;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class InvoiceWithPaymentsResponse {
@@ -32,7 +31,7 @@ public class InvoiceWithPaymentsResponse {
     private OffsetDateTime updatedAt;
 
     // *** CHANGE IS HERE ***: Use the PayResponse DTO
-    private List<Pay> payments; 
+    private List<PayResponse> payments;
 
     // Getters and Setters
     public Long getCode() { return code; }
@@ -67,6 +66,6 @@ public class InvoiceWithPaymentsResponse {
     public void setUpdatedAt(OffsetDateTime updatedAt) { this.updatedAt = updatedAt; }
 
     // *** CHANGE IS HERE ***: Getter/Setter for List<PayResponse>
-    // public List<Pay> getPayments() { return payments; }
-    // public void setPayments(List<Pay> payments) { this.payments = payments; }
+    public List<PayResponse> getPayments() { return payments; }
+    public void setPayments(List<PayResponse> payments) { this.payments = payments; }
 }

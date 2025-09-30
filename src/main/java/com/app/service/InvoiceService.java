@@ -124,7 +124,7 @@ public class InvoiceService {
     // Test with custom query
     System.out.println("Testing custom query findPaymentsByInvoiceId...");
     try {
-        List<Pay> payments = payRepository.findPaymentsByInvoiceId(invoiceId);
+        List<PayResponse> payments = payRepository.findPayResponseByInvoiceId(invoiceId);
         System.out.println("Custom query found: " + payments.size() + " payments");
         
         // Convert to response DTO
@@ -144,7 +144,7 @@ public class InvoiceService {
         response.setNote(invoice.getNote());
         response.setCreateAt(invoice.getCreateAt());
         response.setUpdatedAt(invoice.getUpdatedAt());
-        // response.setPayments(payments);
+        response.setPayments(payments);
         
         System.out.println("Response prepared successfully for invoice: " + invoiceId);
         // System.out.println("Response prepared successfully for invoice with details: " + response.getPayments());
