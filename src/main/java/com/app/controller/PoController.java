@@ -19,16 +19,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.app.dto.InvoiceDetailsResponse;
+import com.app.dto.InvoiceWithPaymentsResponse;
 import com.app.dto.PoCreationResponse;
 import com.app.dto.PoDetailsResponse;
 import com.app.model.Jobby;
-import com.app.model.Pay;
 import com.app.model.Po;
 import com.app.repository.JobRepository;
 import com.app.repository.JobbyRepository;
 import com.app.repository.PayRepository;
 import com.app.repository.PoRepository;
+import com.app.service.InvoiceService;
 
 import jakarta.validation.Valid;
 
@@ -44,13 +44,15 @@ public class PoController {
     private final JobbyRepository jobbyRepository;
     private final PayRepository payRepository;
     private final JobRepository jobRepository;
+    private final InvoiceService invoiceService;
 
     @Autowired
-    public PoController(PoRepository poRepository, JobbyRepository jobbyRepository, PayRepository payRepository, JobRepository jobRepository) {
+    public PoController(PoRepository poRepository, JobbyRepository jobbyRepository, PayRepository payRepository, JobRepository jobRepository, InvoiceService invoiceService) {
         this.poRepository = poRepository;
         this.jobbyRepository = jobbyRepository;
         this.payRepository = payRepository;
         this.jobRepository = jobRepository;
+        this.invoiceService = invoiceService;
     }
 
     /**
@@ -175,15 +177,25 @@ public class PoController {
      * @param invoiceId The ID of the invoice.
      * @return An enriched invoice object with payment and outstanding details.
      */
+    // @GetMapping("inv/{invoiceId}/")
+    // public InvoiceDetailsResponse getInvoiceDetails(@PathVariable Long invoiceId) {
+    //     Jobby invoice = jobbyRepository.findById(invoiceId)
+    //             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Invoice not found"));
+
+    //     List<Pay> payments = payRepository.findByInvoiceId(invoiceId);
+    //     Double paidAmount = payments.stream().mapToDouble(Pay::getAmount).sum();
+    //     Double outstandingAmount = invoice.getCost() - paidAmount;
+
+    //     return new InvoiceDetailsResponse(invoice, payments, paidAmount, outstandingAmount);
+    // }
     @GetMapping("inv/{invoiceId}/")
-    public InvoiceDetailsResponse getInvoiceDetails(@PathVariable Long invoiceId) {
-        Jobby invoice = jobbyRepository.findById(invoiceId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Invoice not found"));
-
-        List<Pay> payments = payRepository.findByInvoiceId(invoiceId);
-        Double paidAmount = payments.stream().mapToDouble(Pay::getAmount).sum();
-        Double outstandingAmount = invoice.getCost() - paidAmount;
-
-        return new InvoiceDetailsResponse(invoice, payments, paidAmount, outstandingAmount);
+    public ResponseEntity<?> getInvoiceWithPayments(@PathVariable Long invoiceId) {
+        try {
+            InvoiceWithPaymentsResponse invoiceWithPayments = invoiceService.getInvoiceWithPayments(invoiceId);
+            return ResponseEntity.ok(invoiceWithPayments);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Invoice not found");
+        }
     }
 }
