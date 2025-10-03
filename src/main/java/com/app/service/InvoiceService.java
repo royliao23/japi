@@ -141,12 +141,12 @@ public class InvoiceService {
         response.setContact(invoice.getContact());
         response.setStatus(invoice.getStatus());
         response.setNote(invoice.getNote());
-        response.setCreateAt(invoice.getCreateAt());
-        response.setUpdatedAt(invoice.getUpdatedAt());
+        response.setCreateAt(invoice.getCreateAt() != null ? invoice.getCreateAt() : null);
+        response.setUpdatedAt(invoice.getUpdatedAt() != null ? invoice.getUpdatedAt() : null);
         response.setPay(payments);
         
         System.out.println("Response prepared successfully for invoice: " + invoiceId);
-        // System.out.println("Response prepared successfully for invoice with details: " + response.getPay());
+        System.out.println("pay Response successfully for invoice with details: " + response.getPay());
 
         return response;
         

@@ -1,7 +1,7 @@
 package com.app.model;
 
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -43,10 +43,10 @@ public class Invoice {
     private String note;
 
     @Column(name = "create_at")
-    private OffsetDateTime createAt;
+    private LocalDateTime createAt;
 
     @Column(name = "updated_at")
-    private OffsetDateTime updatedAt;
+    private LocalDateTime updatedAt;
 
     // Getters and Setters
     public Long getCode() { return code; }
@@ -88,11 +88,11 @@ public class Invoice {
     public String getNote() { return note; }
     public void setNote(String note) { this.note = note; }
 
-    public OffsetDateTime getCreateAt() { return createAt; }
-    public void setCreateAt(OffsetDateTime createAt) { this.createAt = createAt; }
+    public LocalDateTime getCreateAt() { return createAt; }
+    public void setCreateAt(LocalDateTime createAt) { this.createAt = createAt; }
 
-    public OffsetDateTime getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(OffsetDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 
     
 }

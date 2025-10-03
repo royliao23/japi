@@ -49,8 +49,8 @@ public class InvoiceController {
         invoice.setContact(invoiceRequest.getContact());
         invoice.setStatus(invoiceRequest.getStatus());
         invoice.setNote(invoiceRequest.getNote());
-        invoice.setCreateAt(invoiceRequest.getCreateAt());
-        invoice.setUpdatedAt(invoiceRequest.getUpdatedAt());
+        invoice.setCreateAt(invoiceRequest.getCreateAt() != null ? invoiceRequest.getCreateAt() : null);
+        invoice.setUpdatedAt(invoiceRequest.getUpdatedAt() != null ? invoiceRequest.getUpdatedAt() : null);
 
 
         Invoice createdInvoice = invoiceService.createInvoice(invoice);

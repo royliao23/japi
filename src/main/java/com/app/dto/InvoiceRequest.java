@@ -1,7 +1,7 @@
 package com.app.dto;
 
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 
 public class InvoiceRequest {
     private Double cost;
@@ -16,8 +16,8 @@ public class InvoiceRequest {
     private String contact;
     private String status;
     private String note;
-    private OffsetDateTime createAt;
-    private OffsetDateTime updatedAt;
+    private LocalDateTime createAt;
+    private LocalDateTime updatedAt;
 
     // Getters and Setters
     public Double getCost() { return cost; }
@@ -56,9 +56,9 @@ public class InvoiceRequest {
     public String getNote() { return note; }
     public void setNote(String note) { this.note = note; }
 
-    public OffsetDateTime getCreateAt() { return createAt; }
-    public void setCreateAt(OffsetDateTime createAt) { this.createAt = createAt; }
+    public LocalDateTime getCreateAt() { return createAt; }
+    public void setCreateAt(LocalDateTime createAt) { this.createAt = createAt; }
 
-    public OffsetDateTime getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(OffsetDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }

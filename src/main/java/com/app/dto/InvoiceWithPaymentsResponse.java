@@ -1,7 +1,7 @@
 package com.app.dto;
 
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -25,10 +25,10 @@ public class InvoiceWithPaymentsResponse {
     private String note;
     
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private OffsetDateTime createAt;
+    private LocalDateTime createAt;
     
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private OffsetDateTime updatedAt;
+    private LocalDateTime updatedAt;
 
     // *** CHANGE IS HERE ***: Use the PayResponse DTO
     private List<PayResponse> pay;
@@ -60,12 +60,16 @@ public class InvoiceWithPaymentsResponse {
     public void setStatus(String status) { this.status = status; }
     public String getNote() { return note; }
     public void setNote(String note) { this.note = note; }
-    public OffsetDateTime getCreateAt() { return createAt; }
-    public void setCreateAt(OffsetDateTime createAt) { this.createAt = createAt; }
-    public OffsetDateTime getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(OffsetDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public LocalDateTime getCreateAt() { return createAt; }
+    public void setCreateAt(LocalDateTime createAt) { this.createAt = createAt; }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 
     // *** CHANGE IS HERE ***: Getter/Setter for List<PayResponse>
     public List<PayResponse> getPay() { return pay; }
     public void setPay(List<PayResponse> pay) { this.pay = pay; }
+    public void setCreateAt(Object createAt2) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setCreateAt'");
+    }
 }
