@@ -67,6 +67,7 @@ public class PayService {
         return enhancedPayments;
     }
 
+   
     @Transactional
     public Pay updatePayment(Long payId, Pay paymentDetails) {
         Pay payment = payRepository.findById(payId)
@@ -77,9 +78,6 @@ public class PayService {
             throw new RuntimeException("Cannot edit payment more than 30 days after creation");
         }
         
-        // Get original payment amount
-        Double originalAmount = payment.getAmount();
-        
         // Update payment fields
         payment.setAmount(paymentDetails.getAmount());
         payment.setPayVia(paymentDetails.getPayVia());
@@ -87,7 +85,7 @@ public class PayService {
         payment.setSupplyInvoice(paymentDetails.getSupplyInvoice());
         payment.setApprovedBy(paymentDetails.getApprovedBy());
         payment.setNote(paymentDetails.getNote());
-        // payment.setUpdatedAt(OffsetDateTime.now());
+        payment.setUpdatedAt(OffsetDateTime.now());
 
         Pay updatedPayment = payRepository.save(payment);
         updateInvoicePayment(payment.getInvoiceId());

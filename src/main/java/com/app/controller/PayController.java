@@ -1,6 +1,8 @@
 package com.app.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -80,8 +82,7 @@ public ResponseEntity<Pay> createPay(@RequestBody PayRequest payRequest) {
         EnhancedPayResponse response = payService.getPayWithInvoice(code);
         return ResponseEntity.ok(response);
     }
-    // ✅ Update pay
-   @PutMapping("{payId}/")
+    @PutMapping("{payId}/")
     public ResponseEntity<?> updatePayment(@PathVariable Long payId, @RequestBody PayRequest paymentRequest) {
         try {
             Pay payment = new Pay();
@@ -93,9 +94,13 @@ public ResponseEntity<Pay> createPay(@RequestBody PayRequest payRequest) {
             payment.setNote(paymentRequest.getNote());
             
             Pay updatedPayment = payService.updatePayment(payId, payment);
-            return ResponseEntity.ok().body(updatedPayment);
+            return ResponseEntity.ok(updatedPayment);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            // Return proper JSON error with 400 status
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Payment Update Failed");
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
         }
     }
 
