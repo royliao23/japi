@@ -36,7 +36,7 @@ public class PayService {
         return (EnhancedPayResponse) payRepositoryNative.getPayWithInvoice(code);
     }
 
-    @Transactional
+    // @Transactional
     public Pay savePay(Pay pay) {
         return payRepository.save(pay);
     }

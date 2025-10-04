@@ -33,24 +33,34 @@ public class PayController {
         this.payService = payService;
     }
 
-    // ✅ Create pay
-    @PostMapping
-    public ResponseEntity<Pay> createPay(@RequestBody PayRequest payRequest) {
+   @PostMapping
+public ResponseEntity<Pay> createPay(@RequestBody PayRequest payRequest) {
+    try {
         Pay pay = new Pay();
         pay.setAmount(payRequest.getAmount());
-        // pay.setPaid(payRequest.getPaid());
         pay.setPayVia(payRequest.getPayVia());
         pay.setInvoiceId(payRequest.getInvoiceId());
-        pay.setCode(payRequest.getCode());
-        // pay.setRef(payRequest.getRef());
-        // pay.setStatus(payRequest.getStatus());
+        // Don't set code for new entities - it's auto-generated
+        // pay.setCode(payRequest.getCode()); 
+        pay.setSupplyInvoice(payRequest.getSupplyInvoice());
+        pay.setApprovedBy(payRequest.getApprovedBy());
         pay.setNote(payRequest.getNote());
-        pay.setCreateAt(payRequest.getCreateAt());
-        pay.setUpdatedAt(payRequest.getUpdatedAt());
+        
+        // Let JPA handle timestamps or set them if provided
+        if (payRequest.getCreateAt() != null) {
+            pay.setCreateAt(payRequest.getCreateAt());
+        }
+        if (payRequest.getUpdatedAt() != null) {
+            pay.setUpdatedAt(payRequest.getUpdatedAt());
+        }
 
         Pay createdPay = payService.savePay(pay);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdPay);
+    } catch (Exception e) {
+        return ResponseEntity.badRequest().build();
     }
+}
+
 
     // ✅ Get all pays
     @GetMapping
