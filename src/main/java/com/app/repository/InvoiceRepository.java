@@ -11,12 +11,15 @@ import com.app.model.Invoice;
 
 @Repository
 public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
-    
-    List<Invoice> findByStatusNotOrderByCodeDesc(String status);
+    // not including "null status" invoices
+    //List<Invoice> findByStatusNotOrderByCodeDesc(String status);
     
     @Query("SELECT i FROM Invoice i WHERE i.jobId IN :jobIds AND (:projectId IS NULL OR i.projectId = :projectId)")
     List<Invoice> findByJobIdsAndProjectId(@Param("jobIds") List<Long> jobIds,
                                           @Param("projectId") Long projectId);
     Invoice findByCode(Long code);
-    // Remove the native query and use separate queries instead
+
+    // Add this to your repository and use it
+    @Query("SELECT i FROM Invoice i WHERE i.status <> :status OR i.status IS NULL ORDER BY i.code DESC")
+    List<Invoice> findByStatusNotOrderByCodeDesc(@Param("status") String status);
 }
