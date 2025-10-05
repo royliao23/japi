@@ -1,10 +1,13 @@
 package com.app.repository;
 
-import com.app.model.Job;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import com.app.model.Job;
 
 /**
  * A Spring Data JPA repository for the Job entity.
@@ -21,5 +24,7 @@ public interface JobRepository extends JpaRepository<Job, Long> {
      * @return A list of jobs that belong to the specified categories.
      */
     List<Job> findByJobCategoryIdIn(List<Long> jobCategoryIds);
+    @Query(value = "SELECT * FROM job WHERE job_category_id IN :categoryCodes", nativeQuery = true)
+    List<Job> findJobsByCategoryCodesNative(@Param("categoryCodes") List<Long> categoryCodes);
 }
 

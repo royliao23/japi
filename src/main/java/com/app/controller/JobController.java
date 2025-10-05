@@ -1,19 +1,28 @@
 package com.app.controller;
 
-import com.app.dto.JobCreationResponse;
-import com.app.dto.JobsByCategoryRequest;
-import com.app.model.Job;
-import com.app.repository.JobRepository;
-import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
+import com.app.dto.JobCreationResponse;
+import com.app.model.Job;
+import com.app.repository.JobRepository;
+import com.app.service.JobService;
+
+import jakarta.validation.Valid;
 
 /**
  * REST Controller for managing jobs.
@@ -24,10 +33,12 @@ import java.util.Map;
 public class JobController {
 
     private final JobRepository jobRepository;
+    private final JobService jobService;
 
     @Autowired
-    public JobController(JobRepository jobRepository) {
+    public JobController(JobRepository jobRepository, JobService jobService) {
         this.jobRepository = jobRepository;
+        this.jobService = jobService;   
     }
 
     /**
@@ -121,12 +132,21 @@ public class JobController {
      * @param requestBody A request body containing a list of category IDs.
      * @return A list of jobs that match the provided category IDs.
      */
+    // @PostMapping("jobs-by-category/")
+    // public List<Job> getJobsByCategory(@RequestBody JobsByCategoryRequest requestBody) {
+    //     if (requestBody.getCategoryCodes() == null || requestBody.getCategoryCodes().isEmpty()) {
+    //         return Collections.emptyList();
+    //     }
+    //     return jobRepository.findByJobCategoryIdIn(requestBody.getCategoryCodes());
+    // }
     @PostMapping("jobs-by-category/")
-    public List<Job> getJobsByCategory(@RequestBody JobsByCategoryRequest requestBody) {
-        if (requestBody.getCategoryCodes() == null || requestBody.getCategoryCodes().isEmpty()) {
-            return Collections.emptyList();
+    public ResponseEntity<List<Job>> getJobsByCategory(@RequestBody List<Long> categoryCodes) {
+        try {
+            List<Job> jobs = jobService.getJobsByCategory(categoryCodes);
+            return ResponseEntity.ok(jobs);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
         }
-        return jobRepository.findByJobCategoryIdIn(requestBody.getCategoryCodes());
     }
 }
 
