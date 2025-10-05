@@ -35,34 +35,34 @@ public class PayController {
         this.payService = payService;
     }
 
-   @PostMapping
-public ResponseEntity<Pay> createPay(@RequestBody PayRequest payRequest) {
-    try {
-        Pay pay = new Pay();
-        pay.setAmount(payRequest.getAmount());
-        pay.setPayVia(payRequest.getPayVia());
-        pay.setInvoiceId(payRequest.getInvoiceId());
-        // Don't set code for new entities - it's auto-generated
-        // pay.setCode(payRequest.getCode()); 
-        pay.setSupplyInvoice(payRequest.getSupplyInvoice());
-        pay.setApprovedBy(payRequest.getApprovedBy());
-        pay.setNote(payRequest.getNote());
-        
-        // Let JPA handle timestamps or set them if provided
-        if (payRequest.getCreateAt() != null) {
-            pay.setCreateAt(payRequest.getCreateAt());
-        }
-        if (payRequest.getUpdatedAt() != null) {
-            pay.setUpdatedAt(payRequest.getUpdatedAt());
-        }
+    @PostMapping
+    public ResponseEntity<?> createPay(@RequestBody PayRequest payRequest) {
+        try {
+            Pay pay = new Pay();
+            pay.setAmount(payRequest.getAmount());
+            pay.setPayVia(payRequest.getPayVia());
+            pay.setInvoiceId(payRequest.getInvoiceId());
+            pay.setSupplyInvoice(payRequest.getSupplyInvoice());
+            pay.setApprovedBy(payRequest.getApprovedBy());
+            pay.setNote(payRequest.getNote());
+            
+            // Let JPA handle timestamps or set them if provided
+            if (payRequest.getCreateAt() != null) {
+                pay.setCreateAt(payRequest.getCreateAt());
+            }
+            if (payRequest.getUpdatedAt() != null) {
+                pay.setUpdatedAt(payRequest.getUpdatedAt());
+            }
 
-        Pay createdPay = payService.savePay(pay);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdPay);
-    } catch (Exception e) {
-        return ResponseEntity.badRequest().build();
+            Pay createdPay = payService.createPayAndUpdateInvoice(pay);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdPay);
+        } catch (Exception e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Payment Creation Failed");
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
     }
-}
-
 
     // ✅ Get all pays
     @GetMapping
@@ -77,11 +77,13 @@ public ResponseEntity<Pay> createPay(@RequestBody PayRequest payRequest) {
         Pay pay = payService.getPayById(id);
         return pay != null ? ResponseEntity.ok(pay) : ResponseEntity.notFound().build();
     }
+    
     @GetMapping("{code}/")
     public ResponseEntity<EnhancedPayResponse> getPay(@PathVariable Long code) {
         EnhancedPayResponse response = payService.getPayWithInvoice(code);
         return ResponseEntity.ok(response);
     }
+    
     @PutMapping("{payId}/")
     public ResponseEntity<?> updatePayment(@PathVariable Long payId, @RequestBody PayRequest paymentRequest) {
         try {
@@ -93,10 +95,9 @@ public ResponseEntity<Pay> createPay(@RequestBody PayRequest payRequest) {
             payment.setApprovedBy(paymentRequest.getApprovedBy());
             payment.setNote(paymentRequest.getNote());
             
-            Pay updatedPayment = payService.updatePayment(payId, payment);
+            Pay updatedPayment = payService.updatePaymentAndInvoice(payId, payment);
             return ResponseEntity.ok(updatedPayment);
         } catch (RuntimeException e) {
-            // Return proper JSON error with 400 status
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("error", "Payment Update Failed");
             errorResponse.put("message", e.getMessage());
@@ -106,9 +107,16 @@ public ResponseEntity<Pay> createPay(@RequestBody PayRequest payRequest) {
 
     // ✅ Delete pay
     @DeleteMapping("{id}/")
-    public ResponseEntity<Void> deletePay(@PathVariable Long id) {
-        payService.deletePay(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> deletePay(@PathVariable Long id) {
+        try {
+            payService.deletePayAndUpdateInvoice(id);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Payment Deletion Failed");
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
     }
 
     // ✅ Update only status
@@ -118,12 +126,6 @@ public ResponseEntity<Pay> createPay(@RequestBody PayRequest payRequest) {
         Pay updatedPay = payService.updateStatus(id, statusUpdate.getStatus());
         return updatedPay != null ? ResponseEntity.ok(updatedPay) : ResponseEntity.notFound().build();
     }
-
-    // ✅ Filter pays (e.g., by invoiceId, status, date ranges, etc.)
-    // @PostMapping("/filter")
-    // public ResponseEntity<List<Pay>> filterPays(@RequestBody PayFilter filter) {
-    //     return ResponseEntity.ok(payService.filterPays(filter));
-    // }
 
     // ✅ Search pays by reference or note
     @GetMapping("search/")

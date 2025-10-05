@@ -1,5 +1,6 @@
 package com.app.service;
 
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.app.dto.EnhancedPayResponse;
 import com.app.dto.EnhancedPaymentResponse;
@@ -37,9 +37,9 @@ public class PayService {
     }
 
     // @Transactional
-    public Pay savePay(Pay pay) {
-        return payRepository.save(pay);
-    }
+    // public Pay savePay(Pay pay) {
+    //     return payRepository.save(pay);
+    // }
 
     public Pay getPayById(Long code) {
         return payRepository.findById(code).orElse(null);
@@ -68,60 +68,60 @@ public class PayService {
     }
 
    
-    @Transactional
-    public Pay updatePayment(Long payId, Pay paymentDetails) {
-        Pay payment = payRepository.findById(payId)
-                .orElseThrow(() -> new RuntimeException("Payment not found"));
+    // @Transactional
+    // public Pay updatePayment(Long payId, Pay paymentDetails) {
+    //     Pay payment = payRepository.findById(payId)
+    //             .orElseThrow(() -> new RuntimeException("Payment not found"));
         
-        // Check if payment is older than 30 days
-        if (payment.getCreateAt().plusDays(30).isBefore(OffsetDateTime.now())) {
-            throw new RuntimeException("Cannot edit payment more than 30 days after creation");
-        }
+    //     // Check if payment is older than 30 days
+    //     if (payment.getCreateAt().plusDays(30).isBefore(OffsetDateTime.now())) {
+    //         throw new RuntimeException("Cannot edit payment more than 30 days after creation");
+    //     }
         
-        // Update payment fields
-        payment.setAmount(paymentDetails.getAmount());
-        payment.setPayVia(paymentDetails.getPayVia());
-        payment.setInvoiceId(paymentDetails.getInvoiceId());
-        payment.setSupplyInvoice(paymentDetails.getSupplyInvoice());
-        payment.setApprovedBy(paymentDetails.getApprovedBy());
-        payment.setNote(paymentDetails.getNote());
-        payment.setUpdatedAt(OffsetDateTime.now());
+    //     // Update payment fields
+    //     payment.setAmount(paymentDetails.getAmount());
+    //     payment.setPayVia(paymentDetails.getPayVia());
+    //     payment.setInvoiceId(paymentDetails.getInvoiceId());
+    //     payment.setSupplyInvoice(paymentDetails.getSupplyInvoice());
+    //     payment.setApprovedBy(paymentDetails.getApprovedBy());
+    //     payment.setNote(paymentDetails.getNote());
+    //     payment.setUpdatedAt(OffsetDateTime.now());
 
-        Pay updatedPayment = payRepository.save(payment);
-        updateInvoicePayment(payment.getInvoiceId());
+    //     Pay updatedPayment = payRepository.save(payment);
+    //     updateInvoicePayment(payment.getInvoiceId());
         
-        return updatedPayment;
-    }
+    //     return updatedPayment;
+    // }
 
-    private void updateInvoicePayment(Long invoiceId) {
-        Double totalPaid = payRepository.getTotalPaidByInvoiceId(invoiceId);
-        Invoice invoice = invoiceRepository.findById(invoiceId)
-                .orElseThrow(() -> new RuntimeException("Invoice not found"));
+    // private void updateInvoicePayment(Long invoiceId) {
+    //     Double totalPaid = payRepository.getTotalPaidByInvoiceId(invoiceId);
+    //     Invoice invoice = invoiceRepository.findById(invoiceId)
+    //             .orElseThrow(() -> new RuntimeException("Invoice not found"));
         
-        Double cost = invoice.getCost() != null ? invoice.getCost() : 0.0;
-        String status;
+    //     Double cost = invoice.getCost() != null ? invoice.getCost() : 0.0;
+    //     String status;
         
-        if (totalPaid >= cost) {
-            status = "paid";
-        } else if (totalPaid > 0) {
-            status = "partial paid";
-        } else {
-            status = "unpaid";
-        }
+    //     if (totalPaid >= cost) {
+    //         status = "paid";
+    //     } else if (totalPaid > 0) {
+    //         status = "partial paid";
+    //     } else {
+    //         status = "unpaid";
+    //     }
         
-        invoice.setPaid(totalPaid);
-        invoice.setStatus(status);
-        invoiceRepository.save(invoice);
-    }
+    //     invoice.setPaid(totalPaid);
+    //     invoice.setStatus(status);
+    //     invoiceRepository.save(invoice);
+    // }
 
-    @Transactional
-    public void deletePay(Long payId) {
-        Pay pay = getPayById(payId);
-        if (pay == null) return;
+    // @Transactional
+    // public void deletePay(Long payId) {
+    //     Pay pay = getPayById(payId);
+    //     if (pay == null) return;
 
-        payRepository.delete(pay);
-        updateInvoicePayment(pay.getInvoiceId());
-    }
+    //     payRepository.delete(pay);
+    //     updateInvoicePayment(pay.getInvoiceId());
+    // }
 
     public Pay updateStatus(Long id, String status) {
         Pay pay = getPayById(id);
@@ -159,16 +159,110 @@ public class PayService {
         map.put("job_id", invoice.getJobId());
         return map;
     }
-    // public EnhancedPayResponse getPayWithInvoice(Long code) {
-    //     Pay pay = payRepository.findByCode(code)
-    //             .orElse(null);
-
-    //     Invoice invoice = null;
-    //     if (pay.getInvoiceId() != null) {
-    //         invoice = JobbyRepository.findByCode(pay.getInvoiceId()).orElse(null);
-    //     }
+    // CREATE pay and update invoice
+    public Pay createPayAndUpdateInvoice(Pay pay) {
+        // Save the payment first
+        Pay savedPay = payRepository.save(pay);
         
-    //     return new EnhancedPayResponse(pay, invoice);
-    // }
+        // Update the associated invoice
+        updateInvoicePayment(pay.getInvoiceId());
+        
+        return savedPay;
+    }
+
+    // UPDATE pay and update invoice
+    public Pay updatePaymentAndInvoice(Long payId, Pay paymentDetails) {
+        Pay existingPay = payRepository.findById(payId)
+                .orElseThrow(() -> new RuntimeException("Payment not found with id: " + payId));
+        
+        // Check if payment is older than 30 days
+        if (existingPay.getCreateAt().plusDays(30).isBefore(OffsetDateTime.now())) {
+            throw new RuntimeException("Cannot edit payment more than 30 days after creation");
+        }
+        
+        // Store old invoice ID for cleanup if invoice changed
+        Long oldInvoiceId = existingPay.getInvoiceId();
+        
+        // Update payment fields
+        existingPay.setAmount(paymentDetails.getAmount());
+        existingPay.setPayVia(paymentDetails.getPayVia());
+        existingPay.setInvoiceId(paymentDetails.getInvoiceId());
+        existingPay.setSupplyInvoice(paymentDetails.getSupplyInvoice());
+        existingPay.setApprovedBy(paymentDetails.getApprovedBy());
+        existingPay.setNote(paymentDetails.getNote());
+        existingPay.setUpdatedAt(OffsetDateTime.now());
+
+        Pay updatedPayment = payRepository.save(existingPay);
+        
+        // Update both old and new invoices if invoice ID changed
+        if (oldInvoiceId != null && !oldInvoiceId.equals(paymentDetails.getInvoiceId())) {
+            updateInvoicePayment(oldInvoiceId); // Update old invoice
+        }
+        updateInvoicePayment(paymentDetails.getInvoiceId()); // Update new invoice
+        
+        return updatedPayment;
+    }
+
+    // DELETE pay and update invoice
+    public void deletePayAndUpdateInvoice(Long payId) {
+        Pay pay = payRepository.findById(payId)
+                .orElseThrow(() -> new RuntimeException("Payment not found with id: " + payId));
+        
+        Long invoiceId = pay.getInvoiceId();
+        
+        // Delete the payment
+        payRepository.deleteById(payId);
+        
+        // Update the associated invoice
+        updateInvoicePayment(invoiceId);
+    }
+
+    // Method to update invoice paid amount and status
+    private void updateInvoicePayment(Long invoiceId) {
+        if (invoiceId == null) return;
+        
+        // Get the invoice
+        Invoice invoice = invoiceRepository.findByCode(invoiceId);
+        if (invoice == null) return;
+        
+        // Calculate total paid amount for this invoice
+        Double totalPaid = payRepository.getTotalPaidByInvoiceId(invoiceId);
+        if (totalPaid == null) {
+            totalPaid = 0.0;
+        }
+        
+        // Update invoice paid amount
+        invoice.setPaid(totalPaid);
+        
+        // Update invoice status based on paid amount
+        Double cost = invoice.getCost() != null ? invoice.getCost() : 0.0;
+        
+        if (totalPaid == 0) {
+            invoice.setStatus("unpaid");
+        } else if (totalPaid >= cost) {
+            invoice.setStatus("paid");
+        } else if (totalPaid > 0) {
+            invoice.setStatus("partial paid");
+        } else {
+            invoice.setStatus("unpaid");
+        }
+        
+        invoice.setUpdatedAt(LocalDateTime.now());
+        invoiceRepository.save(invoice);
+    }
+
+    // Keep your existing methods...
+    public Pay savePay(Pay pay) {
+        return payRepository.save(pay);
+    }
+    
+    public Pay updatePayment(Long payId, Pay paymentDetails) {
+        // Your existing implementation
+        return updatePaymentAndInvoice(payId, paymentDetails);
+    }
+    
+    public void deletePay(Long id) {
+        deletePayAndUpdateInvoice(id);
+    }
 }
 
